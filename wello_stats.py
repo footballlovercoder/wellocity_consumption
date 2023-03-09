@@ -146,7 +146,7 @@ if url1 is not None and url2 is not None:
             strip.append(int(data_filtered[col].values[0]))
             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m'))   
     
-     option = st.radio('',('Strips Sold','Consumption Pattern'),horizontal=True)
+    option = st.radio('',('Strips Sold','Consumption Pattern'),horizontal=True)
     
     st.text(' ')
         
