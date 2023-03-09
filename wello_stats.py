@@ -71,7 +71,7 @@ if url1 is not None and url2 is not None:
         else:
             return res[-2]
     final['qty_per_strip']=final['Item Name'].apply(lambda x:get_qty(x))
-    stock=stock[['Product Name','Stock']]
+    stock=stock[['Product Name','Stock','Manufacturer Name']]
     stock['Product Name']=stock['Product Name'].apply(lambda x:x.replace("^","'"))
     final=final.rename(columns={'Item Name':'Item'})
     stock=stock.rename(columns={'Product Name':'Item'})
@@ -85,7 +85,8 @@ if url1 is not None and url2 is not None:
         else:
             return df['qty_per_strip']
         
-    final=final.fillna(0)
+    final['Stock']=final['Stock'].fillna(0)
+    final['Manufacturer Name']=final['Manufacturer Name'].fillna("zzz")
     final['strips']=final['Stock'].astype(int)/final['qty_per_strip'].astype(int)
     final['qty_per_strip_new']=final.apply(lambda x:new_qty_strips(x),axis=1)
     final=final.drop(['strips'],axis=1)
@@ -114,6 +115,7 @@ if url1 is not None and url2 is not None:
     
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
+    st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
     with st.container():
         col1, col2,col3 = st.columns(3)
         with col1:
@@ -125,18 +127,12 @@ if url1 is not None and url2 is not None:
         with col3:
             st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
     
-    col1, col2, col3 = st.columns(3)
     
-    with col1:
-        st.write(' ')
+    st.metric('Strips Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
     
-    with col2:
-        st.metric('Strip Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
+          
     
-    with col3:
-        st.write(' ')        
-    
-    data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock'],axis=1)
+    data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock','Manufacturer Name'],axis=1)
     cols=data_filtered.columns.to_list()
     strip=[]
     st.text("")
@@ -149,7 +145,7 @@ if url1 is not None and url2 is not None:
             strip.append(math.ceil(float(data_filtered[col].values[0])))
             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
    
-    option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'),horizontal=True)
+    option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
     
     st.text(' ')
     s=0    
