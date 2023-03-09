@@ -52,7 +52,7 @@ if url1 is not None and url2 is not None:
         opt[c]=datetime.datetime.strptime(c, '%b_%Y').strftime('%Y-%m-01')
     opt_sort=sorted(opt.items(),key=lambda x:x[1])
     m_new=[x[0] for x in opt_sort]
-    final=final[['Item Name','First_transaction','Latest_transaction','Unique_customers']+m]
+    final=final[['Item Name','First_transaction','Latest_transaction','Unique_customers']+m_new]
     
     def get_qty(x):
         x=x.rstrip('.')
