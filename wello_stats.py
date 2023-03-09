@@ -201,7 +201,7 @@ if url1 is not None and url2 is not None:
     
 
     st.sidebar.title('Filter Data ')
-    
+      
     st.sidebar.text('')
      
     minimum=st.sidebar.number_input("Minimum Customer",min_value=1,value=1,step=1)
@@ -241,7 +241,9 @@ if url1 is not None and url2 is not None:
         data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
         data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
        
-     
+    manuf_options = st.sidebar.multiselect('Manufacturer', data_filtered['Manufacturer Name'].unique(),'Select All') 
+    #if manuf_options !="ALL":
+    data_filtered=data_filtered[data_filtered['Manufacturer Name'].isin(manuf_options)]
     @st.experimental_memo
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
