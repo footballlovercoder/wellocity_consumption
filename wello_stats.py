@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import datetime
 import regex as re
 import requests
+import math
 
 
 url1="https://github.com/soham1993/wellocity_consumption/raw/main/wello_sale.csv"
@@ -103,7 +104,7 @@ if url1 is not None and url2 is not None:
                     }
             </style>
             """, unsafe_allow_html=True)
-    st.title('Consumption Data')
+    st.title('Medicine Consumption data')
     st.text("")
     st.text("")
     st.text("")
@@ -128,7 +129,7 @@ if url1 is not None and url2 is not None:
         st.write(' ')
     
     with col2:
-        st.metric('Strip Left',int(data_filtered['Strip_left'].values[0]))
+        st.metric('Strip Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
     
     with col3:
         st.write(' ')        
@@ -143,20 +144,20 @@ if url1 is not None and url2 is not None:
     column=[]
        
     for col in list(reversed(cols1)):
-            strip.append(int(data_filtered[col].values[0]))
-            column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m'))   
-    
-    option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'),horizontal=True)
+            strip.append(math.ceil(float(data_filtered[col].values[0])))
+            column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
+   
+    option = st.radio('',('Strips Sold','Consumption Pattern','Net Consumption'),horizontal=True)
     
     st.text(' ')
     s=0    
     if option=='Strips Sold':
        
            for col in list(reversed(cols1)):
-               st.metric(label=col, value=int(data_filtered[col].values[0]))
+               st.metric(label=col, value=math.ceil(float(data_filtered[col].values[0])))
       
                     
-    elif option=='Sale Pattern': 
+    elif option=='Consumption Pattern': 
        source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
        source['month']=list(reversed(column))
        source=source[['month','strips']]
@@ -165,9 +166,10 @@ if url1 is not None and url2 is not None:
     else:
        
             for col in list(reversed(cols1)):
-                s=s+int(data_filtered[col].values[0])
-            st.metric('Total Strips Sold in %s months'%choice,s)
-              
+                s=s+math.ceil(float(data_filtered[col].values[0]))
+            st.metric('Total Consumption in %s months'%choice,s)
+        
+             
                    
       
               
@@ -188,7 +190,8 @@ if url1 is not None and url2 is not None:
     unsafe_allow_html=True,
 )
 
-   
+    
+
     st.sidebar.title('Filter Data ')
     
     st.sidebar.text('')
