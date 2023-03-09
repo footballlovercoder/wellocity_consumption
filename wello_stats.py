@@ -128,7 +128,7 @@ if url1 is not None and url2 is not None:
         st.write(' ')
     
     with col2:
-        st.metric('Strip Left',int(data_filtered['Strip_left'].values[0]))
+        st.metric('Stock',int(data_filtered['Strip_left'].values[0]))
     
     with col3:
         st.write(' ')        
