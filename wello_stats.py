@@ -145,7 +145,15 @@ if url1 is not None and url2 is not None:
     for col in list(reversed(cols1)):
             strip.append(int(data_filtered[col].values[0]))
             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m'))   
-    option = st.radio('',('Strips Sold','Consumption Pattern'),horizontal=True)
+    col1, col2, col3 = st.columns(3)
+     
+    with col1:
+         st.write(' ')
+    with col2: 
+        option = st.radio('',('Strips Sold','Consumption Pattern'),horizontal=True)
+    with col3:
+          st.write(' ') 
+    st.text(' ')
         
     if option=='Strips Sold':
        for col in list(reversed(cols1)):
