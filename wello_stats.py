@@ -51,7 +51,7 @@ if url1 is not None and url2 is not None:
     for c in cols:
         opt[c]=datetime.datetime.strptime(c, '%b_%Y').strftime('%Y-%m-01')
     opt_sort=sorted(opt.items(),key=lambda x:x[1])
-    m=[x[0] for x in opt_sort]
+    m_new=[x[0] for x in opt_sort]
     final=final[['Item Name','First_transaction','Latest_transaction','Unique_customers']+m]
     
     def get_qty(x):
@@ -90,7 +90,7 @@ if url1 is not None and url2 is not None:
     final['qty_per_strip_new']=final.apply(lambda x:new_qty_strips(x),axis=1)
     final=final.drop(['strips'],axis=1)
     final['Strip_left']=final['Stock'].astype(int)/final['qty_per_strip_new'].astype(int)
-    for col in m:
+    for col in m_new:
         final[col]=final[col].astype(int)/final['qty_per_strip_new'].astype(int)
     final=final.drop(['qty_per_strip_new'],axis=1)
     
