@@ -103,7 +103,7 @@ if url1 is not None and url2 is not None:
                     }
             </style>
             """, unsafe_allow_html=True)
-    st.title('Consumption data')
+    st.title('Consumption Data')
     st.text("")
     st.text("")
     st.text("")
