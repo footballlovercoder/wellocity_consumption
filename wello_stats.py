@@ -115,6 +115,16 @@ if url1 is not None and url2 is not None:
     
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
+    st.markdown(
+    """
+<style>
+[data-testid="stMetricValue"] {
+    font-size: 25px;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
     st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
     with st.container():
         col1, col2,col3 = st.columns(3)
@@ -260,6 +270,3 @@ else:
             
     
     
-        
-
-
