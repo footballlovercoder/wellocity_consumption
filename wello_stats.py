@@ -128,7 +128,7 @@ if url1 is not None and url2 is not None:
         st.write(' ')
     
     with col2:
-        st.metric('Stock',int(data_filtered['Strip_left'].values[0]))
+        st.metric('Strip Left',int(data_filtered['Strip_left'].values[0]))
     
     with col3:
         st.write(' ')        
@@ -158,47 +158,61 @@ if url1 is not None and url2 is not None:
             source=source[['month','strips']]
             chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
             st.altair_chart(chart,use_container_width=True)
-    st.title('Filter Data Section')
     
-    st.text('')
-    st.write("Choose the minimum and maximum number of customers")
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            minimum=st.number_input("Minimum Customer",min_value=1,value=1,step=1)
-            
-            
-        with col2:
-            maximum=st.number_input("Maximum Customer",min_value=1,value=10000,step=1)
+    st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
+        width: 420px;
+    }
+    [data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
+        width: 500px;
+        margin-left: -500px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+   
+    st.sidebar.title('Filter Data ')
+    
+    st.sidebar.text('')
+     
+    minimum=st.sidebar.number_input("Minimum Customer",min_value=1,value=1,step=1)
+         
+        
+     
+    maximum=st.sidebar.number_input("Maximum Customer",min_value=1,value=10000,step=1)
             
     if maximum<minimum:
-        st.write('Maximum cannot be less than Minimum')
+        st.sidebar.write('Maximum cannot be less than Minimum')
     else:
         data['Unique_customers']=data['Unique_customers'].astype(int)
         data_filtered=data[(data['Unique_customers']>=minimum) & (data['Unique_customers']<=maximum) ]
-    st.text('')
+    st.sidebar.text('')
     data_filtered['Latest_transaction']=pd.to_datetime(data_filtered['Latest_transaction'])
     data_filtered['Latest_transaction_new']=data_filtered['Latest_transaction'].apply(lambda x:x.strftime('%Y-%m-01'))
-    options = st.multiselect('TimeFrame for latest transaction', cols,cols)
+    options = st.sidebar.multiselect('TimeRange (Recent transaction)', cols,cols)
     opt=[]
     for c in options:
         opt.append(datetime.datetime.strptime(c,'%b_%Y').strftime('%Y-%m-01'))
     
     data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)] 
     
-    st.text('')
+    st.sidebar.text('')
     st.write("Choose the minimum and maximum stock position")
-    with st.container():
-        col1, col2 = st.columns(2)
+    with st.sidebar.container():
+        col1, col2 = st.sidebar.columns(2)
         with col1:
-            minimum1=st.number_input("Minimum Stock",min_value=0,value=0,step=1)
+            minimum1=st.sidebar.number_input("Minimum Stock",min_value=0,value=0,step=1)
             
             
         with col2:
-            maximum1=st.number_input("Maximum Stock",min_value=0,value=10000,step=1)
+            maximum1=st.sidebar.number_input("Maximum Stock",min_value=0,value=10000,step=1)
             
     if maximum<minimum:
-        st.write('Maximum cannot be less than Minimum')
+        st.sidebar.write('Maximum cannot be less than Minimum')
     else:
         data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
         data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
@@ -210,7 +224,7 @@ if url1 is not None and url2 is not None:
         return df.to_csv().encode('utf-8')
     
     csv = convert_df(data_filtered) 
-    st.download_button(
+    st.sidebar.download_button(
         label="Download data as CSV",
         data=csv,
         file_name='FIltered_data.csv',
