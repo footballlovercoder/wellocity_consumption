@@ -185,16 +185,7 @@ if url1 is not None and url2 is not None:
     unsafe_allow_html=True,
 )
 
-    st.markdown("""
-    <style>
-      section[data-testid="stSidebar"][aria-expanded="true"]{
-        height: 80% !important;
-      }
-      section[data-testid="stSidebar"][aria-expanded="false"]{
-        height: 80% !important;
-      }
-    </style>""", unsafe_allow_html=True)
-
+   
     st.sidebar.title('Filter Data ')
     
     st.sidebar.text('')
