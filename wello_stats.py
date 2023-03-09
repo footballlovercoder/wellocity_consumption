@@ -201,7 +201,6 @@ if url1 is not None and url2 is not None:
     data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)] 
     
     st.sidebar.text('')
-    st.write("Choose the minimum and maximum stock position")
     with st.sidebar.container():
         col1, col2 = st.sidebar.columns(2)
         with col1:
