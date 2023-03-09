@@ -218,12 +218,17 @@ if url1 is not None and url2 is not None:
     st.sidebar.text('')
     data_filtered['Latest_transaction']=pd.to_datetime(data_filtered['Latest_transaction'])
     data_filtered['Latest_transaction_new']=data_filtered['Latest_transaction'].apply(lambda x:x.strftime('%Y-%m-01'))
-    options = st.sidebar.multiselect('TimeRange (Recent transaction)', cols,cols)
-    opt=[]
-    for c in options:
-        opt.append(datetime.datetime.strptime(c,'%b_%Y').strftime('%Y-%m-01'))
-    
-    data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)] 
+    mon=cols+['All Months']
+    options = st.sidebar.multiselect('TimeRange (Recent transaction)',mon,'All Months')
+    try:
+        if options[0]!='All Months':
+            opt=[]
+            for c in options:
+                opt.append(datetime.datetime.strptime(c,'%b_%Y').strftime('%Y-%m-01'))
+            
+            data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)]
+    except IndexError:
+        st.write('')
     
     st.sidebar.text('')
     with st.sidebar.container():
@@ -240,10 +245,17 @@ if url1 is not None and url2 is not None:
     else:
         data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
         data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
+    
+    manuf=list(set(data_filtered['Manufacturer Name'].to_list()))+['All Manufacturers']
+    manuf_options = st.sidebar.multiselect('Manufacturer', manuf,'All Manufacturers' )
+    try:
+        if manuf_options[0] !='All Manufacturers':
+            data_filtered=data_filtered[data_filtered['Manufacturer Name'].isin(manuf_options)]
+            
        
-    manuf_options = st.sidebar.multiselect('Manufacturer', data_filtered['Manufacturer Name'].unique(),'Select All') 
-    #if manuf_options !="ALL":
-    data_filtered=data_filtered[data_filtered['Manufacturer Name'].isin(manuf_options)]
+            
+    except IndexError:
+        st.write('')
     @st.experimental_memo
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -270,5 +282,7 @@ else:
             """, unsafe_allow_html=True)
     st.header('     ')
             
+    
+    
     
     
