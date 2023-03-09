@@ -117,9 +117,11 @@ if url1 is not None and url2 is not None:
     with st.container():
         col1, col2,col3 = st.columns(3)
         with col1:
-            st.metric('First Transaction',data_filtered['First_transaction'].astype(str).values[0])
+            ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
+            st.metric('First Transaction',ft)
         with col2:
-            st.metric('Latest Transaction',data_filtered['Latest_transaction'].astype(str).values[0])
+            lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
+            st.metric('Latest Transaction',lt)
         with col3:
             st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
     
