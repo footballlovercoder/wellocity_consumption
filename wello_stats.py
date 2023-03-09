@@ -146,20 +146,28 @@ if url1 is not None and url2 is not None:
             strip.append(int(data_filtered[col].values[0]))
             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m'))   
     
-    option = st.radio('',('Strips Sold','Consumption Pattern'),horizontal=True)
+     option = st.radio('',('Strips Sold','Consumption Pattern','Net Consumption'),horizontal=True)
     
     st.text(' ')
-        
+    s=0    
     if option=='Strips Sold':
-       for col in list(reversed(cols1)):
-           st.metric(label=col, value=int(data_filtered[col].values[0]))              
+       
+           for col in list(reversed(cols1)):
+               st.metric(label=col, value=int(data_filtered[col].values[0]))
+      
                     
-    else: 
+    elif option=='Consumption Pattern': 
        source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
        source['month']=list(reversed(column))
        source=source[['month','strips']]
        chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
-       st.altair_chart(chart,use_container_width=True)          
+       st.altair_chart(chart,use_container_width=True) 
+    else:
+       
+            for col in list(reversed(cols1)):
+                s=s+int(data_filtered[col].values[0])
+            st.metric('Total Consumption in %s months'%choice,s)
+              
                    
       
               
