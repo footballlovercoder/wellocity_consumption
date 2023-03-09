@@ -146,7 +146,7 @@ if url1 is not None and url2 is not None:
             strip.append(int(data_filtered[col].values[0]))
             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m'))   
     
-    option = st.radio('',('Strips Sold','Sale Chart','Net Strips Sold'),horizontal=True)
+    option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'),horizontal=True)
     
     st.text(' ')
     s=0    
@@ -156,7 +156,7 @@ if url1 is not None and url2 is not None:
                st.metric(label=col, value=int(data_filtered[col].values[0]))
       
                     
-    elif option=='Sale Chart': 
+    elif option=='Sale Pattern': 
        source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
        source['month']=list(reversed(column))
        source=source[['month','strips']]
