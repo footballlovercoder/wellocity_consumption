@@ -239,7 +239,6 @@ if url1 is not None and url2 is not None:
     
     
     header('Low Stock Alert')
-    st.text('')
     data_f=data.copy()
     data_f=data_f[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
     limit=date.today()+relativedelta(months=-2)
