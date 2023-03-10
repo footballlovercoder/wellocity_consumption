@@ -144,10 +144,6 @@ st.markdown("""
         """, unsafe_allow_html=True)
 
 
-st.text("")
-st.text("")
-st.text("")
-
 data=final.copy()
 data=data.rename(columns={'Item':'Item_Name'})
 st.markdown(
@@ -166,6 +162,9 @@ unsafe_allow_html=True,
 )
 st.title("Choose Activity")
 option = st.selectbox('Choose Activity',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'),label_visibility='hidden')
+st.text("")
+st.text("")
+st.text("")
 if option =='Check Consumption Pattern':
     #st.header('Consumption Pattern')
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
