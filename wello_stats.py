@@ -99,7 +99,7 @@ if url1 is not None and url2 is not None:
     st.markdown("""
             <style>
                    .block-container {
-                        padding-top: 0rem;
+                        padding-top: 2rem;
                         padding-bottom: 0rem;
                         padding-left: 5rem;
                         padding-right: 5rem;
