@@ -123,70 +123,71 @@ if url1 is not None and url2 is not None:
     
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
-    st.markdown(
-    """
-<style>
-[data-testid="stMetricValue"] {
-    font-size: 25px;
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
-    st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
-    with st.container():
-        col1, col2,col3 = st.columns(3)
-        with col1:
-            ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
-            st.metric('First Transaction',ft)
-        with col2:
-            lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
-            st.metric('Latest Transaction',lt)
-        with col3:
-            st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
-    
-    
-    st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
-    
-          
-    
-    data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock','Manufacturer Name'],axis=1)
-    cols=data_filtered.columns.to_list()
-    strip=[]
-    st.text("")
-    st.text("")
-    choice=st.number_input('Choose the number of months consumption you want to check',min_value=1,max_value=12,step=1)
-    cols1=cols[-int(choice):]
-    column=[]
-       
-    for col in list(reversed(cols1)):
-            strip.append(math.ceil(float(data_filtered[col].values[0])))
-            column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
-   
-    option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
-    
-    st.text(' ')
-    s=0    
-    if option=='Strips Sold':
-       
-           for col in list(reversed(cols1)):
-               st.metric(label=col, value=math.ceil(float(data_filtered[col].values[0])))
-      
-                    
-    elif option=='Sale Pattern': 
-       source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
-       source['month']=list(reversed(column))
-       source=source[['month','strips']]
-       chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
-       st.altair_chart(chart,use_container_width=True) 
-    else:
-       
+    if st.button=='Search':
+            st.markdown(
+            """
+        <style>
+        [data-testid="stMetricValue"] {
+            font-size: 25px;
+        }
+        </style>
+        """,
+            unsafe_allow_html=True,
+        )
+            st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
+            with st.container():
+                col1, col2,col3 = st.columns(3)
+                with col1:
+                    ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
+                    st.metric('First Transaction',ft)
+                with col2:
+                    lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
+                    st.metric('Latest Transaction',lt)
+                with col3:
+                    st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
+
+
+            st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
+
+
+
+            data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock','Manufacturer Name'],axis=1)
+            cols=data_filtered.columns.to_list()
+            strip=[]
+            st.text("")
+            st.text("")
+            choice=st.number_input('Choose the number of months consumption you want to check',min_value=1,max_value=12,step=1)
+            cols1=cols[-int(choice):]
+            column=[]
+
             for col in list(reversed(cols1)):
-                s=s+math.ceil(float(data_filtered[col].values[0]))
-            st.metric('Total Strips Sold in %s months'%choice,s)
-        
-             
-                   
+                    strip.append(math.ceil(float(data_filtered[col].values[0])))
+                    column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
+
+            option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
+
+            st.text(' ')
+            s=0    
+            if option=='Strips Sold':
+
+                   for col in list(reversed(cols1)):
+                       st.metric(label=col, value=math.ceil(float(data_filtered[col].values[0])))
+
+
+            elif option=='Sale Pattern': 
+               source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
+               source['month']=list(reversed(column))
+               source=source[['month','strips']]
+               chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
+               st.altair_chart(chart,use_container_width=True) 
+            else:
+
+                    for col in list(reversed(cols1)):
+                        s=s+math.ceil(float(data_filtered[col].values[0]))
+                    st.metric('Total Strips Sold in %s months'%choice,s)
+
+
+
       
               
     
