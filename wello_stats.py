@@ -8,6 +8,7 @@ import datetime
 import regex as re
 import requests
 import math
+from dateutil.relativedelta import relativedelta
 
 
 url1="https://github.com/soham1993/wellocity_consumption/raw/main/wello_sale.csv"
@@ -105,7 +106,8 @@ if url1 is not None and url2 is not None:
                     }
             </style>
             """, unsafe_allow_html=True)
-    st.title(' Consumption Data')
+    
+    st.header(' Consumption Data')
     st.text("")
     st.text("")
     st.text("")
@@ -138,7 +140,7 @@ if url1 is not None and url2 is not None:
             st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
     
     
-    st.metric('Strips Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
+    st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
     
           
     
@@ -197,9 +199,44 @@ if url1 is not None and url2 is not None:
     """,
     unsafe_allow_html=True,
 )
-
+    def header(url):
+       st.sidebar.markdown(f'<p style=color:#ff0000;font-size:24px;border-radius:2%;">{url}</p>', unsafe_allow_html=True)
     
-
+    @st.experimental_memo
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode('utf-8')
+       
+    
+    
+    header('Low Stock Alert')
+    st.text('')
+    data_f=data.copy()
+    data_f=data_f[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
+    limit=date.today()+relativedelta(months=-2)
+    limit=limit.strftime('%Y-%m-01')
+    data_f1=data_f[data_f['Latest_transaction']>=limit]
+    data_f1=data_f1[data_f1['Strip_left']==0]
+    
+    data_f2=data_f[data_f['Latest_transaction']<limit]
+    data_f2=data_f2[data_f2['Strip_left']==0]
+    data_f2=data_f2[data_f2['Unique_customers']>10]
+    
+    data_f3=data_f[data_f['Latest_transaction']>=limit]
+    data_f3=data_f3[data_f3['Unique_customers']>10]
+    data_f3=data_f3[data_f3['Strip_left']<=3]
+    res=pd.concat([data_f1,data_f2])
+    res=pd.concat([res,data_f3])
+    res=res.sort_values(by=['Unique_customers'],ascending=False)
+    res=res[['Item_Name','Strip_left']]
+    csv1 = convert_df(res) 
+    st.sidebar.download_button(
+        label="Download low stock data",
+        data=csv1,
+        file_name='low_stock_data.csv',
+        mime='text/csv',
+    )    
+    
     st.sidebar.title('Filter Data ')
       
     st.sidebar.text('')
@@ -256,14 +293,12 @@ if url1 is not None and url2 is not None:
             
     except IndexError:
         st.write('')
-    @st.experimental_memo
-    def convert_df(df):
-        # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        return df.to_csv().encode('utf-8')
-    
+    data_filtered=data_filtered[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
+
+   
     csv = convert_df(data_filtered) 
     st.sidebar.download_button(
-        label="Download data as CSV",
+        label="Download Filtered Data",
         data=csv,
         file_name='FIltered_data.csv',
         mime='text/csv',
@@ -282,6 +317,8 @@ else:
             """, unsafe_allow_html=True)
     st.header('     ')
             
+    
+    
     
     
     
