@@ -113,7 +113,7 @@ if url1 is not None and url2 is not None:
             </style>
             """, unsafe_allow_html=True)
     
-    st.header(' Consumption Data')
+    st.header('Consumption Data')
     st.text("")
     st.text("")
     st.text("")
@@ -123,8 +123,7 @@ if url1 is not None and url2 is not None:
     
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
-    if st.button('Search'):
-            st.markdown(
+    st.markdown(
             """
         <style>
         [data-testid="stMetricValue"] {
@@ -134,16 +133,17 @@ if url1 is not None and url2 is not None:
         """,
             unsafe_allow_html=True,
         )
-            st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
-            with st.container():
-                col1, col2,col3 = st.columns(3)
-                with col1:
+            
+       st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
+       with st.container():
+       col1, col2,col3 = st.columns(3)
+        with col1:
                     ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
                     st.metric('First Transaction',ft)
-                with col2:
+         with col2:
                     lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
                     st.metric('Latest Transaction',lt)
-                with col3:
+          with col3:
                     st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
 
 
@@ -186,7 +186,7 @@ if url1 is not None and url2 is not None:
                         s=s+math.ceil(float(data_filtered[col].values[0]))
                     st.metric('Total Strips Sold in %s months'%choice,s)
 
-
+   
 
       
               
