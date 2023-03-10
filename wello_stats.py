@@ -97,7 +97,7 @@ def get_qty(x):
     if len(res)==1:
         return 1
     res1=x.split(' ')
-    if 'ML' in res or 'GM' in res or 'G' in res or 'PCS ' in res or 'PCS' in res or 'PCS' in res1 or 'CREAM' in res1 or 'JELLY' in res1 or 'OINT' in res1 or 'WASH' in res1 or 'OIL' in res1 or 'CREAM(S)' in res1 or 'OINTMENT' in res1 or 'LOTION' in res1 or 'SYP' in res1 or 'SYRUP' in res1 or 'RESPULES' in res1 or 'INHALER' in res1 or 'TRANSHALER' in res1 or 'INH' in res1 or 'TRANSHEALER' in res1 or ' TRANSCAP' in res1 or 'ROTACAPS' in res1 or 'GEL' in res1 or 'TUBE' in res1 or 'POWDER' in res1:
+    if   'ML' in res or 'GM' in res or 'G' in res or 'PCS ' in res or 'PCS' in res or 'PCS' in res1 or 'CREAM' in res1 or 'JELLY' in res1 or 'OINT' in res1 or 'WASH' in res1 or 'OIL' in res1 or 'CREAM(S)' in res1 or 'OINTMENT' in res1 or 'LOTION' in res1 or 'SYP' in res1 or 'SYRUP' in res1 or 'RESPULES' in res1 or 'INHALER' in res1 or 'TRANSHALER' in res1 or 'INH' in res1 or 'TRANSHEALER' in res1 or ' TRANSCAP' in res1 or 'ROTACAPS' in res1 or 'GEL' in res1 or 'TUBE' in res1 or 'POWDER' in res1:
         return 1
    
     if '*' in res:
@@ -164,10 +164,10 @@ st.markdown(
 """,
 unsafe_allow_html=True,
 )
-st.sidebar.title("Choose Activity")
-option = st.sidebar.radio('',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'))
+st.title("Choose Activity")
+option = st.selectbox('Choose Activity',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'),label_visibility='hidden')
 if option =='Check Consumption Pattern':
-    st.header('Consumption Pattern')
+    #st.header('Consumption Pattern')
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
     st.markdown(
@@ -234,7 +234,7 @@ if option =='Check Consumption Pattern':
     
  
 elif option=='Get Low Stock Alert':
-    st.title('Low Stock Alert')
+    #st.title('Low Stock Alert')
     data_f=data.copy()
     data_f=data_f[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
     limit=date.today()+relativedelta(months=-2)
@@ -273,7 +273,7 @@ elif option=='Get Low Stock Alert':
             st.write("Wrong Mail id")
 else:
    
-    st.title('Filter Data ')
+    #st.title('Filter Data ')
           
           
     minimum=st.number_input("Minimum Customer",min_value=1,value=1,step=1)
@@ -337,6 +337,12 @@ else:
         mime='text/csv',
     )    
     
+   
+    
+    
+        
+  
+        
    
     
     
