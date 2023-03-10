@@ -9,6 +9,12 @@ import regex as re
 import requests
 import math
 from dateutil.relativedelta import relativedelta
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from smtplib import SMTP
+import smtplib
+import sys
 
 
 url1="https://github.com/soham1993/wellocity_consumption/raw/main/wello_sale.csv"
@@ -206,6 +212,29 @@ if url1 is not None and url2 is not None:
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
         return df.to_csv().encode('utf-8')
+    def send_email(send_to, subject, df):
+        send_from = "duttasoham31@gmail.com"
+        password = "gtpicwfujeqxlqqx"
+        message = """\
+        <p><strong>This Contains low stock data&nbsp;</strong></p>
+        <p><br></p>
+        <p><strong>Greetings&nbsp;</strong><br><strong>Wellocity&nbsp;    </strong></p>
+        """
+        for receiver in send_to:
+                multipart = MIMEMultipart()
+                multipart["From"] = send_from
+                multipart["To"] = receiver
+                multipart["Subject"] = subject  
+                attachment = MIMEApplication(df.to_csv())
+                fname='low_stock_data'
+                attachment["Content-Disposition"] = 'attachment; filename=" {}"'.format(f"{fname}.csv")
+                multipart.attach(attachment)
+                multipart.attach(MIMEText(message, "html"))
+                server = smtplib.SMTP("smtp.gmail.com", 587)
+                server.starttls()
+                server.login(multipart["From"], password)
+                server.sendmail(multipart["From"], multipart["To"], multipart.as_string())
+                server.quit()
        
     
     
@@ -229,21 +258,30 @@ if url1 is not None and url2 is not None:
     res=pd.concat([res,data_f3])
     res=res.sort_values(by=['Unique_customers'],ascending=False)
     res=res[['Item_Name','Strip_left']]
-    csv1 = convert_df(res) 
-    st.sidebar.download_button(
-        label="Download low stock data",
-        data=csv1,
-        file_name='low_stock_data.csv',
-        mime='text/csv',
-    )    
     
+    option = st.sidebar.radio('',('Download','Send Email'),horizontal=True)
+    if option=='Download':
+        csv1 = convert_df(res) 
+        st.sidebar.download_button(
+            label="Download low stock data",
+            data=csv1,
+            file_name='low_stock_data.csv',
+            mime='text/csv',
+        )   
+    else:
+        try:
+            mailid = st.sidebar.text_input('Enter your Email id')
+            if st.sidebar.button('Send'):
+                send_email([mailid],'Low stock alert',res)
+                st.sidebar.write("Mail Sent Succesfully")
+        except:
+            st.sidebar.write("Wrong Mail id")
+   
     st.sidebar.title('Filter Data ')
-      
+          
     st.sidebar.text('')
-     
+      
     minimum=st.sidebar.number_input("Minimum Customer",min_value=1,value=1,step=1)
-         
-        
      
     maximum=st.sidebar.number_input("Maximum Customer",min_value=1,value=10000,step=1)
             
@@ -317,7 +355,6 @@ else:
             """, unsafe_allow_html=True)
     st.header('     ')
             
-    
     
     
     
