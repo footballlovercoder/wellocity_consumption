@@ -25,6 +25,36 @@ def load_data():
         df = pd.read_csv(url1,sep = ',',header=0)
         stock=pd.read_csv(url2,sep = ',',header=0)
         return df,stock
+def header(url):
+   st.sidebar.markdown(f'<p style=color:#ff0000;font-size:24px;border-radius:2%;">{url}</p>', unsafe_allow_html=True)
+
+@st.experimental_memo
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
+def send_email(send_to, subject, df):
+    send_from = "duttasoham31@gmail.com"
+    password = "gtpicwfujeqxlqqx"
+    message = """\
+    <p><strong>This Contains low stock data&nbsp;</strong></p>
+    <p><br></p>
+    <p><strong>Greetings&nbsp;</strong><br><strong>Wellocity&nbsp;    </strong></p>
+    """
+    for receiver in send_to:
+            multipart = MIMEMultipart()
+            multipart["From"] = send_from
+            multipart["To"] = receiver
+            multipart["Subject"] = subject  
+            attachment = MIMEApplication(df.to_csv())
+            fname='low_stock_data'
+            attachment["Content-Disposition"] = 'attachment; filename=" {}"'.format(f"{fname}.csv")
+            multipart.attach(attachment)
+            multipart.attach(MIMEText(message, "html"))
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(multipart["From"], password)
+            server.sendmail(multipart["From"], multipart["To"], multipart.as_string())
+            server.quit()
 df,stock = load_data()
 ### aggregation code
 df=df.fillna('CUSTOMER')
@@ -103,7 +133,7 @@ final=final.drop(['qty_per_strip_new'],axis=1)
 st.markdown("""
         <style>
                .block-container {
-                    padding-top: 2rem;
+                    padding-top: 0rem;
                     padding-bottom: 0rem;
                     padding-left: 5rem;
                     padding-right: 5rem;
@@ -111,90 +141,18 @@ st.markdown("""
         </style>
         """, unsafe_allow_html=True)
 
-st.header('Consumption Data')
+
 st.text("")
 st.text("")
 st.text("")
 
 data=final.copy()
 data=data.rename(columns={'Item':'Item_Name'})
-
-choice=st.selectbox('Medicine Name',data['Item_Name'].values)
-data_filtered=data[data['Item_Name']==choice]
-st.markdown(
-        """
-    <style>
-    [data-testid="stMetricValue"] {
-        font-size: 25px;
-    }
-    </style>
-    """,
-        unsafe_allow_html=True,
-    )
-st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
-with st.container():
-     col1, col2,col3 = st.columns(3)
-     with col1:
-             ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
-             st.metric('First Transaction',ft)
-     with col2:
-             lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
-             st.metric('Latest Transaction',lt)
-     with col3:
-             st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
-
-
-     st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
-
-
-
-     data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock','Manufacturer Name'],axis=1)
-     cols=data_filtered.columns.to_list()
-     strip=[]
-     st.text("")
-     st.text("")
-     choice=st.number_input('Choose the number of months consumption you want to check',min_value=1,max_value=12,step=1)
-     cols1=cols[-int(choice):]
-     column=[]
-
-     for col in list(reversed(cols1)):
-             strip.append(math.ceil(float(data_filtered[col].values[0])))
-             column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
-
-     option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
-
-     st.text(' ')
-     s=0    
-     if option=='Strips Sold':
-
-            for col in list(reversed(cols1)):
-                st.metric(label=col, value=math.ceil(float(data_filtered[col].values[0])))
-
-
-     elif option=='Sale Pattern': 
-        source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
-        source['month']=list(reversed(column))
-        source=source[['month','strips']]
-        chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
-        st.altair_chart(chart,use_container_width=True) 
-     else:
-
-             for col in list(reversed(cols1)):
-                 s=s+math.ceil(float(data_filtered[col].values[0]))
-             st.metric('Total Strips Sold in %s months'%choice,s)
-
-
-    
-  
-  
-          
-
-
 st.markdown(
 """
 <style>
 [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
-    width: 420px;
+    width: 500px;
 }
 [data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
     width: 500px;
@@ -204,41 +162,77 @@ st.markdown(
 """,
 unsafe_allow_html=True,
 )
-def header(url):
-   st.sidebar.markdown(f'<p style=color:#ff0000;font-size:24px;border-radius:2%;">{url}</p>', unsafe_allow_html=True)
-
-@st.experimental_memo
-def convert_df(df):
-    # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_csv().encode('utf-8')
-def send_email(send_to, subject, df):
-    send_from = "duttasoham31@gmail.com"
-    password = "gtpicwfujeqxlqqx"
-    message = """\
-    <p><strong>This Contains low stock data&nbsp;</strong></p>
-    <p><br></p>
-    <p><strong>Greetings&nbsp;</strong><br><strong>Wellocity&nbsp;    </strong></p>
-    """
-    for receiver in send_to:
-            multipart = MIMEMultipart()
-            multipart["From"] = send_from
-            multipart["To"] = receiver
-            multipart["Subject"] = subject  
-            attachment = MIMEApplication(df.to_csv())
-            fname='low_stock_data'
-            attachment["Content-Disposition"] = 'attachment; filename=" {}"'.format(f"{fname}.csv")
-            multipart.attach(attachment)
-            multipart.attach(MIMEText(message, "html"))
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login(multipart["From"], password)
-            server.sendmail(multipart["From"], multipart["To"], multipart.as_string())
-            server.quit()
-   
-
-option = st.sidebar.radio('',('Get Low Stock Alert','Filter Data'))
-if option=='Get Low Stock Alert':
-    st.sidebar.title('Low Stock Alert')
+st.sidebar.title("Choose Activity")
+option = st.sidebar.radio('',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'))
+if option =='Check Consumption Pattern':
+    st.header('Consumption Pattern')
+    choice=st.selectbox('Medicine Name',data['Item_Name'].values)
+    data_filtered=data[data['Item_Name']==choice]
+    st.markdown(
+            """
+        <style>
+        [data-testid="stMetricValue"] {
+            font-size: 25px;
+        }
+        </style>
+        """,
+            unsafe_allow_html=True,
+        )
+    st.metric('Manufacturer',data_filtered['Manufacturer Name'].values[0])
+    with st.container():
+         col1, col2,col3 = st.columns(3)
+         with col1:
+                 ft=m[(pd.to_datetime(data_filtered['First_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['First_transaction'].values[0]).year)
+                 st.metric('First Transaction',ft)
+         with col2:
+                 lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
+                 st.metric('Latest Transaction',lt)
+         with col3:
+                 st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
+    
+    
+         st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
+    
+    
+    
+         data_filtered=data_filtered.drop(['Item_Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','qty_per_strip','Stock','Manufacturer Name'],axis=1)
+         cols=data_filtered.columns.to_list()
+         strip=[]
+         st.text("")
+         st.text("")
+         choice=st.number_input('Choose the number of months consumption you want to check',min_value=1,max_value=12,step=1)
+         cols1=cols[-int(choice):]
+         column=[]
+    
+         for col in list(reversed(cols1)):
+                 strip.append(math.ceil(float(data_filtered[col].values[0])))
+                 column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
+    
+         option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
+    
+         st.text(' ')
+         s=0    
+         if option=='Strips Sold':
+    
+                for col in list(reversed(cols1)):
+                    st.metric(label=col, value=math.ceil(float(data_filtered[col].values[0])))
+    
+    
+         elif option=='Sale Pattern': 
+            source = pd.DataFrame(list(reversed(strip)),columns=['strips'])
+            source['month']=list(reversed(column))
+            source=source[['month','strips']]
+            chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
+            st.altair_chart(chart,use_container_width=True) 
+         else:
+    
+                 for col in list(reversed(cols1)):
+                     s=s+math.ceil(float(data_filtered[col].values[0]))
+                 st.metric('Total Strips Sold in %s months'%choice,s)
+    
+ 
+elif option=='Get Low Stock Alert':
+    st.title('Low Stock Alert')
     data_f=data.copy()
     data_f=data_f[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
     limit=date.today()+relativedelta(months=-2)
@@ -258,42 +252,42 @@ if option=='Get Low Stock Alert':
     res=res.sort_values(by=['Unique_customers'],ascending=False)
     res=res[['Item_Name','Strip_left']]
     
-    option = st.sidebar.radio('',('Download','Send Email'))
+    option = st.radio('',('Download','Send Email'))
     if option=='Download':
         csv1 = convert_df(res) 
-        st.sidebar.download_button(
+        st.download_button(
             label="Download low stock data",
             data=csv1,
             file_name='low_stock_data.csv',
             mime='text/csv',
         )   
     else:
-     
-            mailid = st.sidebar.text_input('Enter your Email id','wellocity445@gmail.com')
-            if st.sidebar.button('Send'):
+        try:
+            mailid = st.text_input('Enter your Email id','wellocity445@gmail.com')
+            if st.button('Send'):
                 send_email([mailid],'Low stock alert',res)
-                st.sidebar.write("Mail Sent Succesfully")
-        
+                st.write("Mail Sent Succesfully")
+        except:
+            st.write("Wrong Mail id")
 else:
    
-    st.sidebar.title('Filter Data ')
+    st.title('Filter Data ')
           
-    st.sidebar.text('')
-      
-    minimum=st.sidebar.number_input("Minimum Customer",min_value=1,value=1,step=1)
+          
+    minimum=st.number_input("Minimum Customer",min_value=1,value=1,step=1)
      
-    maximum=st.sidebar.number_input("Maximum Customer",min_value=1,value=10000,step=1)
+    maximum=st.number_input("Maximum Customer",min_value=1,value=10000,step=1)
             
     if maximum<minimum:
-        st.sidebar.write('Maximum cannot be less than Minimum')
+        st.write('Maximum cannot be less than Minimum')
     else:
         data['Unique_customers']=data['Unique_customers'].astype(int)
         data_filtered=data[(data['Unique_customers']>=minimum) & (data['Unique_customers']<=maximum) ]
-    st.sidebar.text('')
+    st.text('')
     data_filtered['Latest_transaction']=pd.to_datetime(data_filtered['Latest_transaction'])
     data_filtered['Latest_transaction_new']=data_filtered['Latest_transaction'].apply(lambda x:x.strftime('%Y-%m-01'))
     mon=cols+['All Months']
-    options = st.sidebar.multiselect('TimeRange (Recent transaction)',mon,'All Months')
+    options = st.multiselect('TimeRange (Recent transaction)',mon,'All Months')
     try:
         if options[0]!='All Months':
             opt=[]
@@ -304,24 +298,24 @@ else:
     except IndexError:
         st.write('')
     
-    st.sidebar.text('')
-    with st.sidebar.container():
-        col1, col2 = st.sidebar.columns(2)
+    st.text('')
+    with st.container():
+        col1, col2 = st.columns(2)
         with col1:
-            minimum1=st.sidebar.number_input("Minimum Stock",min_value=0,value=0,step=1)
+            minimum1=st.number_input("Minimum Stock",min_value=0,value=0,step=1)
             
             
         with col2:
-            maximum1=st.sidebar.number_input("Maximum Stock",min_value=0,value=10000,step=1)
+            maximum1=st.number_input("Maximum Stock",min_value=0,value=10000,step=1)
             
     if maximum<minimum:
-        st.sidebar.write('Maximum cannot be less than Minimum')
+        st.write('Maximum cannot be less than Minimum')
     else:
         data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
         data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
     
     manuf=list(set(data_filtered['Manufacturer Name'].to_list()))+['All Manufacturers']
-    manuf_options = st.sidebar.multiselect('Manufacturer', manuf,'All Manufacturers' )
+    manuf_options = st.multiselect('Manufacturer', manuf,'All Manufacturers' )
     try:
         if manuf_options[0] !='All Manufacturers':
             data_filtered=data_filtered[data_filtered['Manufacturer Name'].isin(manuf_options)]
@@ -334,7 +328,7 @@ else:
 
    
     csv = convert_df(data_filtered) 
-    st.sidebar.download_button(
+    st.download_button(
         label="Download Filtered Data",
         data=csv,
         file_name='FIltered_data.csv',
