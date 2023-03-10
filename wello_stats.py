@@ -274,6 +274,7 @@ if option=='Get Low Stock Alert':
                 send_email([mailid],'Low stock alert',res)
                 st.sidebar.write("Mail Sent Succesfully")
         except:
+            st.sidebar.write(error)
             st.sidebar.write("Wrong Mail id")
 else:
    
