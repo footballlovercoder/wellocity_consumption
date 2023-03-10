@@ -270,7 +270,7 @@ if url1 is not None and url2 is not None:
         )   
     else:
         try:
-            mailid = st.sidebar.text_input('Enter your Email id')
+            mailid = st.sidebar.text_input('Enter your Email id','wellocity445@gmail.com')
             if st.sidebar.button('Send'):
                 send_email([mailid],'Low stock alert',res)
                 st.sidebar.write("Mail Sent Succesfully")
