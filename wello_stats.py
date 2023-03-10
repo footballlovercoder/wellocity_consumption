@@ -92,6 +92,8 @@ final=final[['Item Name','First_transaction','Latest_transaction','Unique_custom
 def get_qty(x):
     x=x.rstrip('.')
     res=re.split('(\d+)', x)
+    if x=='KARVOL PLUS CAP INH 1*10':
+        return res[-2]
     if len(res)==1:
         return 1
     res1=x.split(' ')
