@@ -268,14 +268,12 @@ if option=='Get Low Stock Alert':
             mime='text/csv',
         )   
     else:
-        try:
+     
             mailid = st.sidebar.text_input('Enter your Email id','wellocity445@gmail.com')
             if st.sidebar.button('Send'):
                 send_email([mailid],'Low stock alert',res)
                 st.sidebar.write("Mail Sent Succesfully")
-        except:
-            st.sidebar.write(error)
-            st.sidebar.write("Wrong Mail id")
+        
 else:
    
     st.sidebar.title('Filter Data ')
