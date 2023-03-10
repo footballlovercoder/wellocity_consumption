@@ -123,7 +123,7 @@ if url1 is not None and url2 is not None:
     
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
     data_filtered=data[data['Item_Name']==choice]
-    if st.button=='Search':
+    if st.button('Search'):
             st.markdown(
             """
         <style>
