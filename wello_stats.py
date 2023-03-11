@@ -15,6 +15,7 @@ from email.mime.multipart import MIMEMultipart
 from smtplib import SMTP
 import smtplib
 import sys
+import copy
 
 
 url1="https://github.com/soham1993/wellocity_consumption/raw/main/wello_sale.csv"
@@ -144,6 +145,7 @@ st.markdown("""
         """, unsafe_allow_html=True)
 
 
+
 data=final.copy()
 data=data.rename(columns={'Item':'Item_Name'})
 st.markdown(
@@ -161,20 +163,22 @@ st.markdown(
 unsafe_allow_html=True,
 )
 st.title("Choose Activity")
-option = st.selectbox('Choose Activity',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'),label_visibility='hidden')
+option = st.selectbox('',('Check Consumption Pattern','Get Low Stock Alert','Filter Data'))
 st.text("")
 st.text("")
 st.text("")
+
 if option =='Check Consumption Pattern':
     #st.header('Consumption Pattern')
     choice=st.selectbox('Medicine Name',data['Item_Name'].values)
+    ch_actvcust=copy.deepcopy(choice)
     data_filtered=data[data['Item_Name']==choice]
     st.markdown(
             """
         <style>
         [data-testid="stMetricValue"] {
             font-size: 25px;
-        }
+        }           
         </style>
         """,
             unsafe_allow_html=True,
@@ -189,7 +193,7 @@ if option =='Check Consumption Pattern':
                  lt=m[(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).month)]+'-'+str(pd.to_datetime(data_filtered['Latest_transaction'].values[0]).year)
                  st.metric('Latest Transaction',lt)
          with col3:
-                 st.metric('Number of unique customers',int(data_filtered['Unique_customers'].values[0]))
+                 st.metric('Total Number of  customers',int(data_filtered['Unique_customers'].values[0]))
     
     
          st.metric('Stock Left',math.ceil(float(data_filtered['Strip_left'].values[0])))
@@ -209,7 +213,7 @@ if option =='Check Consumption Pattern':
                  strip.append(math.ceil(float(data_filtered[col].values[0])))
                  column.append(datetime.datetime.strptime(col, '%b_%Y').strftime('%Y-%m')) 
     
-         option = st.radio('',('Strips Sold','Sale Pattern','Net Strips Sold'))
+         option = st.radio('',('Strips Sold','Sale Pattern','Active Customers','Net Strips Sold'))
     
          st.text(' ')
          s=0    
@@ -225,8 +229,21 @@ if option =='Check Consumption Pattern':
             source=source[['month','strips']]
             chart=alt.Chart(source).mark_bar().encode(x='month',y='strips')
             st.altair_chart(chart,use_container_width=True) 
-         else:
+         elif option=='Active Customers':
+            d=pd.to_datetime(date.today().strftime('%Y-%m-01'))
+            limit=d+relativedelta(months=-choice)
+            limit=limit.strftime('%Y-%m-01')
+            df1=df[['Date','Item Name','Patient Name']]
+            df1=df1[df1['Date']>=limit]
+            df1=df1[df1['Item Name']==ch_actvcust]
+            df2=df1.groupby('Item Name')['Patient Name'].nunique().reset_index()
+            df2=df2.rename(columns={'Patient Name':'Unique_customers'})
+            if len( df2['Unique_customers'])>0:
+                st.metric(label="Active Customers", value=df2['Unique_customers'].values[0])
+            else:
+                 st.metric(label="Active Customers", value=0)
     
+         else: 
                  for col in list(reversed(cols1)):
                      s=s+math.ceil(float(data_filtered[col].values[0]))
                  st.metric('Total Strips Sold in %s months'%choice,s)
