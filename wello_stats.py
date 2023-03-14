@@ -288,80 +288,112 @@ elif option=='Get Low Stock Alert':
         except:
             st.write("Wrong Mail id")
 else:
-   
-    #st.title('Filter Data ')
-          
-          
-    minimum=st.number_input("Minimum Customer",min_value=1,value=1,step=1)
-     
-    maximum=st.number_input("Maximum Customer",min_value=1,value=10000,step=1)
-            
-    if maximum<minimum:
-        st.write('Maximum cannot be less than Minimum')
-    else:
-        data['Unique_customers']=data['Unique_customers'].astype(int)
-        data_filtered=data[(data['Unique_customers']>=minimum) & (data['Unique_customers']<=maximum) ]
-    st.text('')
-    data_filtered['Latest_transaction']=pd.to_datetime(data_filtered['Latest_transaction'])
-    data_filtered['Latest_transaction_new']=data_filtered['Latest_transaction'].apply(lambda x:x.strftime('%Y-%m-01'))
-    mon=cols+['All Months']
-    options = st.multiselect('TimeRange (Recent transaction)',mon,'All Months')
-    try:
-        if options[0]!='All Months':
-            opt=[]
-            for c in options:
-                opt.append(datetime.datetime.strptime(c,'%b_%Y').strftime('%Y-%m-01'))
-            
-            data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)]
-    except IndexError:
-        st.write('')
-    
-    st.text('')
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            minimum1=st.number_input("Minimum Stock",min_value=0,value=0,step=1)
-            
-            
-        with col2:
-            maximum1=st.number_input("Maximum Stock",min_value=0,value=10000,step=1)
-            
-    if maximum<minimum:
-        st.write('Maximum cannot be less than Minimum')
-    else:
-        data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
-        data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
-    
-    manuf=list(set(data_filtered['Manufacturer Name'].to_list()))+['All Manufacturers']
-    manuf_options = st.multiselect('Manufacturer', manuf,'All Manufacturers' )
-    try:
-        if manuf_options[0] !='All Manufacturers':
-            data_filtered=data_filtered[data_filtered['Manufacturer Name'].isin(manuf_options)]
-            
+  try:
+        manuf=list(set(data['Manufacturer Name'].to_list()))+['All Manufacturers']
+        manuf_options = st.multiselect('Manufacturer', manuf,'All Manufacturers' )
+        try:
+            if manuf_options[0] !='All Manufacturers':
+                data_filtered=data[data['Manufacturer Name'].isin(manuf_options)]
+            else:
+                data_filtered=data.copy()
+           
+        except IndexError:
+            st.write('')
        
+        data_filtered['Latest_transaction']=pd.to_datetime(data_filtered['Latest_transaction'])
+        data_filtered['Latest_transaction_new']=data_filtered['Latest_transaction'].apply(lambda x:x.strftime('%Y-%m-01'))
+        mon=cols+['All Months']
+        options = st.multiselect('TimeRange (Recent transaction)',mon,'All Months')
+        if 'All Months' not in options :
+            try:
+                if options[0]!='All Months':
+                    opt=[]
+                    for c in options:
+                        opt.append(datetime.datetime.strptime(c,'%b_%Y').strftime('%Y-%m-01'))
+                    
+                    data_filtered=data_filtered[data_filtered['Latest_transaction_new'].isin(opt)]
+            except IndexError:
+                st.write('')
+        elif len(options)>1:
+            st.write('You cannot choose all the months and individual months together')
+            exit()
+        else:
+            st.write(' ')
             
-    except IndexError:
-        st.write('')
-    data_filtered=data_filtered[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left']]
-
-   
-    csv = convert_df(data_filtered) 
-    st.download_button(
-        label="Download Filtered Data",
-        data=csv,
-        file_name='FIltered_data.csv',
-        mime='text/csv',
-    )    
-    
-   
-    
-    
+        st.text('')
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                min_st=st.number_input("Minimum Average Strip sold per month",min_value=0,value=0,step=1)
+                
+                
+            with col2:
+                max_st=st.number_input("Maximum Average Strip sold per month",min_value=0,value=10000,step=1)
+                
+        if max_st<min_st:
+            st.write('Maximum cannot be less than Minimum')
+        else:
+            if len(options)>1:
+                data_avg_st=data_filtered[['Item_Name']+options]
+            else:
+                data_avg_st=data_filtered[['Item_Name']+m_new]
+                options=m_new
+            data_avg_st['sum']=data_avg_st.sum(axis=1)
+            data_avg_st['avg']=data_avg_st['sum']/len(options)
+            data_avg_st['avg']=data_avg_st['avg'].apply(lambda x:math.ceil(x))
+            data_avg_st=data_avg_st[['Item_Name','avg']]
+            data_filtered=data_filtered.merge(data_avg_st,on='Item_Name',how='left')
+            data_filtered=data_filtered[(data_filtered['avg']>=min_st) & (data_filtered['avg']<=max_st) ]
+       
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                minimum=st.number_input("Minimum Customer",min_value=1,value=1,step=1)
+                
+                
+            with col2:
+               maximum=st.number_input("Maximum Customer",min_value=1,value=10000,step=1)
+          
+        if maximum<minimum:
+            st.write('Maximum cannot be less than Minimum')
+        else:
+            data_filtered['Unique_customers']=data_filtered['Unique_customers'].astype(int)
+            data_filtered=data_filtered[(data_filtered['Unique_customers']>=minimum) & (data_filtered['Unique_customers']<=maximum) ]
+        st.text('')
         
-  
+       
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                minimum1=st.number_input("Minimum Stock",min_value=0,value=0,step=1)
+                
+                
+            with col2:
+                maximum1=st.number_input("Maximum Stock",min_value=0,value=10000,step=1)
+                
+        if maximum<minimum:
+            st.write('Maximum cannot be less than Minimum')
+        else:
+            data_filtered['Strip_left']=data_filtered['Strip_left'].astype(int)
+            data_filtered=data_filtered[(data_filtered['Strip_left']>=minimum1) & (data_filtered['Strip_left']<=maximum1) ]
         
-   
+       
+        data_filtered=data_filtered[['Item_Name','Manufacturer Name','First_transaction','Latest_transaction','Unique_customers','Strip_left','avg']]
+        data_filtered=data_filtered.sort_values(by=['Strip_left'])
+        if len(data_filtered)>0:
+            csv = convert_df(data_filtered) 
+            st.download_button(
+                label="Download Filtered Data",
+                data=csv,
+                file_name='FIltered_data.csv',
+                mime='text/csv',
+            )    
+        else:
+            st.write("No Results Found!!!")
+  except:
+       st.write(' ')
+        
+       
     
     
-        
-  
         
